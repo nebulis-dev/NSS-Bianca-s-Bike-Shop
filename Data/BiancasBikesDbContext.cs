@@ -1,0 +1,163 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using BiancasBikes.Models;
+using Microsoft.AspNetCore.Identity;
+
+namespace BiancasBikes.Data;
+
+public class BiancasBikesDbContext : IdentityDbContext<IdentityUser>
+{
+    private readonly IConfiguration _configuration;
+    public DbSet<Bike> Bikes { get; set; }
+    public DbSet<BikeType> BikeTypes { get; set; }
+    public DbSet<WorkOrder> WorkOrders { get; set; }
+    public DbSet<Owner> Owners { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; }
+
+    public BiancasBikesDbContext(DbContextOptions<BiancasBikesDbContext> context, IConfiguration config) : base(context)
+    {
+        _configuration = config;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // The seeded admin IdentityUser's PasswordHash is computed from the
+        // student's own AdminPassword secret using PasswordHasher, which salts
+        // randomly on every call. That makes the computed model "change" on
+        // every design-time build even though nothing about it actually needs
+        // fixing - tell EF Core this particular drift is expected. (The seeded
+        // role's and user's ConcurrencyStamp/SecurityStamp would also change on
+        // every build, since their constructors generate new Guids, so those are
+        // given fixed values in OnModelCreating below. The PasswordHash is the
+        // only seeded value that still changes, and it will show up as an
+        // UpdateData in every new migration.)
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+        {
+            Id = "c3aaeb97-d2ba-4a53-a521-4eea61e59b35",
+            Name = "Admin",
+            NormalizedName = "admin",
+            ConcurrencyStamp = "a6f8b1d2-6c3e-4f7a-9b2d-1e5c8a4f7b90"
+        });
+
+        modelBuilder.Entity<IdentityUser>().HasData(new IdentityUser
+        {
+            Id = "dbc40bc6-0829-4ac5-a3ed-180f5e916a5f",
+            UserName = "Administrator",
+            Email = "admina@strator.comx",
+            ConcurrencyStamp = "3d9e7c41-8b2a-4f6d-a1e5-7c0b9f2d4e68",
+            SecurityStamp = "e2b4f6a8-1c3d-4e5f-8a9b-0c1d2e3f4a5b",
+            PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, _configuration["AdminPassword"])
+        });
+
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+        {
+            RoleId = "c3aaeb97-d2ba-4a53-a521-4eea61e59b35",
+            UserId = "dbc40bc6-0829-4ac5-a3ed-180f5e916a5f"
+        });
+        modelBuilder.Entity<UserProfile>().HasData(new UserProfile
+        {
+            Id = 1,
+            IdentityUserId = "dbc40bc6-0829-4ac5-a3ed-180f5e916a5f",
+            FirstName = "Admina",
+            LastName = "Strator",
+            Address = "101 Main Street",
+        });
+
+        modelBuilder.Entity<Owner>().HasData(new Owner[]
+        {
+            new Owner
+            {
+                Id = 1,
+                Email="bike.owner@mail.comx",
+                Name="Bike Owner",
+                Address="421 Tenth Street",
+                Telephone="123-456-7890"
+            },
+            new Owner
+            {
+                Id = 2,
+                Email="una.cycle@mail.comx",
+                Name="Una Cycle",
+                Address="422 Eight Street",
+                Telephone="555-555-5555"
+            },
+            new Owner {
+                Id = 3,
+                Email="velo.cipede@mail.comx",
+                Name="Velo Cipede",
+                Address="101 First Street",
+                Telephone="555-555-5555"
+            },
+        });
+        modelBuilder.Entity<BikeType>().HasData(new BikeType[]
+        {
+            new BikeType {Id = 1, Name = "Mountain"},
+            new BikeType {Id = 2, Name = "Racing"},
+            new BikeType {Id = 3, Name = "Cruiser"},
+        });
+        modelBuilder.Entity<Bike>().HasData(new Bike[]
+        {
+            new Bike
+            {
+                Id = 1,
+                Brand = "Schwinn",
+                Color = "Blue",
+                OwnerId = 1,
+                BikeTypeId = 1
+            },
+            new Bike
+            {
+                Id = 2,
+                Brand = "Huffy",
+                Color = "Red",
+                OwnerId = 1,
+                BikeTypeId = 3
+            },
+            new Bike
+            {
+                Id = 3,
+                Brand = "Cannondale",
+                Color = "Purple",
+                OwnerId = 2,
+                BikeTypeId = 2
+            },
+            new Bike
+            {
+                Id = 4,
+                Brand = "Giant",
+                Color = "Green",
+                OwnerId = 3,
+                BikeTypeId = 1
+            },
+        });
+        modelBuilder.Entity<WorkOrder>().HasData(new WorkOrder[]
+        {
+            new WorkOrder
+            {
+                Id = 1,
+                BikeId = 1,
+                Description = "Flat Tire",
+                DateInitiated = new DateTime(2023, 7, 15),
+                InitiatedByUserProfileId = 1
+            },
+            new WorkOrder
+            {
+                Id = 2,
+                BikeId = 3,
+                Description = "Bent Fork",
+                DateInitiated = new DateTime(2023, 7, 12),
+                DateCompleted = new DateTime(2023, 7, 15),
+                MechanicUserProfileId = 1,
+                InitiatedByUserProfileId = 1
+            }
+        });
+    }
+}
