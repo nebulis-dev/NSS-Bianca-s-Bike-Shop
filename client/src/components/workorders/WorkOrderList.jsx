@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table } from "reactstrap";
 import { getIncompleteWorkOrders } from "../../managers/workOrderManager";
+import { Link } from "react-router-dom";
 
 const testWorkOrders = [
   {
@@ -77,6 +78,7 @@ export default function WorkOrderList({ loggedInUser }) {
   return (
     <>
       <h2>Open Work Orders</h2>
+      <Link to="/workorders/create">New Work Order</Link>
       <Table>
         <thead>
           <tr>

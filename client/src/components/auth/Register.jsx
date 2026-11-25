@@ -11,6 +11,7 @@ export default function Register({ setLoggedInUser }) {
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const [passwordMismatch, setPasswordMismatch] = useState();
   const [registrationFailure, setRegistrationFailure] = useState(false);
@@ -31,9 +32,14 @@ export default function Register({ setLoggedInUser }) {
         address,
         password,
       };
-      register(newUser).then((user) => {
-        if (user) {
-          setLoggedInUser(user);
+
+      register(newUser).then((res) => {
+        if (res?.errors) {
+          setErrors(res.errors);
+          setRegistrationFailure(false);
+        } else if (res) {
+          setErrors({});
+          setLoggedInUser(res);
           navigate("/");
         } else {
           setRegistrationFailure(true);
@@ -133,6 +139,13 @@ export default function Register({ setLoggedInUser }) {
       <p>
         Already signed up? Log in <Link to="/login">here</Link>
       </p>
+      <div style={{ color: "red" }}>
+        {Object.keys(errors).map((key) => (
+          <p key={key}>
+            {key}: {errors[key].join(",")}
+          </p>
+        ))}
+      </div>
     </div>
   );
 }

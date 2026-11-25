@@ -224,6 +224,7 @@ namespace BiancasBikes.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -396,7 +397,7 @@ namespace BiancasBikes.Migrations
                             Email = "admina@strator.comx",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            PasswordHash = "AQAAAAIAAYagAAAAEM4F/n5KZvgCOHguQYDT4HsF9CORE95LIu+x1+B81zKND2OVn13IF1JnevouZ6pINQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOFc6qkTgl1dLgp8VIk2J1/MdmhNHqbBvlqTb21bro4lCtXrcu9kgt14uoNGO/hmcw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "e2b4f6a8-1c3d-4e5f-8a9b-0c1d2e3f4a5b",
                             TwoFactorEnabled = false,
